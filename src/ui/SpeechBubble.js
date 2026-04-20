@@ -6,8 +6,8 @@
 
 import Phaser from 'phaser';
 
-const BUBBLE_MAX_WIDTH = 240;
-const BUBBLE_PADDING = 10;
+const BUBBLE_MAX_WIDTH = 300;
+const BUBBLE_PADDING = 12;
 const FADE_DURATION = 500;
 
 export class SpeechBubble {
@@ -18,30 +18,30 @@ export class SpeechBubble {
     // Measure text to size bubble
     const textObj = scene.add.text(0, 0, text, {
       fontFamily: '"Courier New", monospace',
-      fontSize: '13px',
-      color: '#c8c4be',
+      fontSize: '22px',
+      color: '#1a1a1a',
       wordWrap: { width: BUBBLE_MAX_WIDTH - BUBBLE_PADDING * 2 },
-      lineSpacing: 3
+      lineSpacing: 5
     });
     textObj.setOrigin(0, 0);
 
     const textWidth = Math.min(textObj.width + BUBBLE_PADDING * 2, BUBBLE_MAX_WIDTH);
     const textHeight = textObj.height + BUBBLE_PADDING * 2;
 
-    // Background
+    // Background — white bubble
     const bg = scene.add.graphics();
-    bg.fillStyle(Phaser.Display.Color.HexStringToColor('#0d0b09').color, 0.88);
-    bg.fillRoundedRect(0, 0, textWidth, textHeight, 3);
+    bg.fillStyle(0xffffff, 0.95);
+    bg.fillRoundedRect(0, 0, textWidth, textHeight, 4);
     // Accent border on left edge
-    bg.fillStyle(Phaser.Display.Color.HexStringToColor(accentColor).color, 0.6);
-    bg.fillRect(0, 2, 2, textHeight - 4);
+    bg.fillStyle(Phaser.Display.Color.HexStringToColor(accentColor).color, 0.8);
+    bg.fillRect(0, 2, 3, textHeight - 4);
 
     // Tail triangle pointing down
-    bg.fillStyle(Phaser.Display.Color.HexStringToColor('#0d0b09').color, 0.88);
+    bg.fillStyle(0xffffff, 0.95);
     bg.fillTriangle(
-      textWidth / 2 - 4, textHeight,
-      textWidth / 2 + 4, textHeight,
-      textWidth / 2, textHeight + 6
+      textWidth / 2 - 5, textHeight,
+      textWidth / 2 + 5, textHeight,
+      textWidth / 2, textHeight + 8
     );
 
     // Position text inside bubble

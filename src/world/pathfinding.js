@@ -7,9 +7,9 @@
 import Phaser from 'phaser';
 import EasyStar from 'easystarjs';
 
-const TILE_SIZE = 32;
-const GRID_W = 40;  // 1280 / 32
-const GRID_H = 23;  // 736 / 32 (slightly over 720)
+const TILE_SIZE = 48;
+const GRID_W = 27;  // 1280 / 48 ≈ 27
+const GRID_H = 15;  // 720 / 48 = 15
 
 export class Pathfinder {
   constructor() {
@@ -51,11 +51,12 @@ export class Pathfinder {
       }
       grid.push(rowData);
     }
-    // Ensure station areas and fire pit are clear
-    this.clearArea(grid, 34, 4, 3);   // scout station (1088/32 ≈ 34, 140/32 ≈ 4)
-    this.clearArea(grid, 6, 16, 3);    // blacksmith station (200/32 ≈ 6, 510/32 ≈ 16)
-    this.clearArea(grid, 20, 3, 3);    // oracle station (640/32 ≈ 20, 110/32 ≈ 3)
-    this.clearArea(grid, 20, 11, 3);   // fire pit center (640/32 ≈ 20, 360/32 ≈ 11)
+    // Ensure station areas and meeting room are clear
+    this.clearArea(grid, 6, 4, 2);    // Mina's desk area (320/48 ≈ 6, 200/48 ≈ 4)
+    this.clearArea(grid, 20, 4, 2);   // James's station (960/48 ≈ 20, 180/48 ≈ 4)
+    this.clearArea(grid, 4, 10, 2);   // Carl's desk (200/48 ≈ 4, 500/48 ≈ 10)
+    this.clearArea(grid, 16, 10, 2);  // Larry's spot (800/48 ≈ 16, 480/48 ≈ 10)
+    this.clearArea(grid, 12, 9, 3);   // Conference area (580/48 ≈ 12, 420/48 ≈ 9)
     return grid;
   }
 

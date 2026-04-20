@@ -18,21 +18,15 @@ export class AgentFSM {
     this.states = {
       idle: {
         enter: () => {
-          this.stateDuration = Phaser.Math.Between(2000, 5000);
+          this.stateDuration = Phaser.Math.Between(5000, 15000);
           this.agent.playAnim('idle');
         },
         update: (dt) => {
           this.stateTime += dt;
           if (this.stateTime >= this.stateDuration) {
-            // Randomly decide next action
-            const roll = Math.random();
-            if (roll < 0.5) {
-              this.transition('wander');
-            } else if (roll < 0.8) {
-              this.transition('walkToStation');
-            } else {
-              this.transition('idle'); // stay idle a bit longer
-            }
+            // Agents stay at their desks most of the time
+            // Occasional brief stretch — stay idle with new duration
+            this.transition('idle');
           }
         }
       },
@@ -47,8 +41,8 @@ export class AgentFSM {
           const targetX = station.x + Math.cos(angle) * dist;
           const targetY = station.y + Math.sin(angle) * dist;
           // Clamp to world bounds
-          const tx = Phaser.Math.Clamp(targetX, 40, 1240);
-          const ty = Phaser.Math.Clamp(targetY, 40, 680);
+          const tx = Phaser.Math.Clamp(targetX, 80, 1200);
+          const ty = Phaser.Math.Clamp(targetY, 80, 640);
           this.agent.walkTo(tx, ty, () => {
             this.transition('idle');
           });
@@ -88,8 +82,8 @@ export class AgentFSM {
 
       walkToMeeting: {
         enter: () => {
-          // Walk to the central fire pit
-          this.agent.walkTo(640, 400, () => {
+          // Walk to the conference table
+          this.agent.walkTo(580, 420, () => {
             this.transition('idle');
           });
         },

@@ -15,9 +15,16 @@ export class AgentSprite {
     this.pathfinder = pathfinder;
 
     // Create sprite at station position
-    this.sprite = scene.add.sprite(config.station.x, config.station.y, config.spriteKey, 0);
-    this.sprite.setOrigin(0.5, 0.5);
-    this.sprite.setDepth(10);
+    // Initial frame: idle row (char-row 1), facing direction from config
+    // Direction offsets: right=0, up=6, left=12, down=18 (each × 6 frames)
+    const dirFrameOffset = { down: 18, up: 6, left: 12, right: 0 };
+    const initialFrame = 1 * 56 + (dirFrameOffset[this.currentDir] || 18);
+    this.sprite = scene.add.sprite(config.station.x, config.station.y, config.spriteKey, initialFrame);
+    this.sprite.setOrigin(0.5, 1);
+    // Per-agent depth: front-facing (Mina/James) between layers 2-3,
+    // back-facing (Carl/Larry) above decoration at layer 6.5
+    const agentDepth = config.facingDir === 'up' ? 6.5 : 2.5;
+    this.sprite.setDepth(agentDepth);
     // Larger hit area — sprite is 48x48 but we want a generous click target
     this.sprite.setInteractive({
       useHandCursor: true,
@@ -33,30 +40,8 @@ export class AgentSprite {
     this.pathIndex = 0;
     this.isWalking = false;
     this.onPathComplete = null;
-    this.currentDir = 'down';
-
-    // Name label
-    this.nameLabel = scene.add.text(config.station.x, config.station.y - 32, config.name, {
-      fontFamily: '"Courier New", monospace',
-      fontSize: '14px',
-      color: config.accentColor,
-      stroke: '#0a0a0a',
-      strokeThickness: 3,
-      align: 'center'
-    });
-    this.nameLabel.setOrigin(0.5, 1);
-    this.nameLabel.setDepth(20);
-    this.nameLabel.setAlpha(1);
-
-    // Status text (shows current state)
-    this.statusText = scene.add.text(config.station.x, config.station.y + 28, '', {
-      fontFamily: '"Courier New", monospace',
-      fontSize: '12px',
-      color: '#8a857e',
-      align: 'center'
-    });
-    this.statusText.setOrigin(0.5, 0);
-    this.statusText.setDepth(20);
+    // Lock facing direction per agent config (default: down = front-facing)
+    this.currentDir = config.facingDir || 'down';
 
     // Create animations
     this.createAnimations();
@@ -64,45 +49,21 @@ export class AgentSprite {
     // Initialize FSM
     this.fsm = new AgentFSM(this);
 
-    // Start with a slight delay so agents don't all move at once
-    scene.time.delayedCall(Phaser.Math.Between(500, 3000), () => {
+    // Start idle immediately with locked facing
+    scene.time.delayedCall(Phaser.Math.Between(500, 2000), () => {
       this.fsm.transition('idle');
     });
   }
 
   createAnimations() {
-    const key = this.config.spriteKey;
-
-    // 4 columns per row, 5 rows: down(0-3), left(4-7), right(8-11), up(12-15), idle(16-19)
-    const dirs = ['down', 'left', 'right', 'up'];
-    dirs.forEach((dir, row) => {
-      this.scene.anims.create({
-        key: `${key}_walk_${dir}`,
-        frames: this.scene.anims.generateFrameNumbers(key, {
-          start: row * 4,
-          end: row * 4 + 3
-        }),
-        frameRate: 6,
-        repeat: -1
-      });
-    });
-
-    // Idle animation — row 5 (frames 16-19), slow
-    this.scene.anims.create({
-      key: `${key}_idle`,
-      frames: this.scene.anims.generateFrameNumbers(key, {
-        start: 16,
-        end: 19
-      }),
-      frameRate: 3,
-      repeat: -1
-    });
+    // Animations are now created in BootScene.createCharacterAnimations()
+    // using the LimeZu spritesheet layout. Nothing to do here.
   }
 
   playAnim(type) {
     const key = this.config.spriteKey;
     if (type === 'idle') {
-      this.sprite.play(`${key}_idle`, true);
+      this.sprite.play(`${key}_idle_${this.currentDir}`, true);
     } else if (type === 'walk') {
       this.sprite.play(`${key}_walk_${this.currentDir}`, true);
     }
@@ -189,28 +150,9 @@ export class AgentSprite {
         }
       }
     }
-
-    // Update label positions
-    this.nameLabel.x = this.sprite.x;
-    this.nameLabel.y = this.sprite.y - 30;
-    this.statusText.x = this.sprite.x;
-    this.statusText.y = this.sprite.y + 26;
-
-    // Update status text
-    const stateLabels = {
-      idle: '· · ·',
-      wander: 'patrolling',
-      walkToStation: 'returning',
-      working: 'working',
-      walkToMeeting: 'convening',
-      talking: 'listening'
-    };
-    this.statusText.setText(stateLabels[this.fsm.currentState] || '');
   }
 
   destroy() {
     this.sprite.destroy();
-    this.nameLabel.destroy();
-    this.statusText.destroy();
   }
 }

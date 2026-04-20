@@ -42,8 +42,9 @@ function loadEnv() {
 
 loadEnv();
 
-// Dynamically import the handler (ESM)
+// Dynamically import the handlers (ESM)
 const { default: chatHandler } = await import('./api/chat.js');
+const { default: thinkHandler } = await import('./api/think.js');
 
 const PORT = 3001;
 
@@ -84,6 +85,34 @@ const server = createServer(async (req, res) => {
         await chatHandler(fakeReq, fakeRes);
       } catch (err) {
         console.error('Handler error:', err);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Internal server error' }));
+      }
+    });
+  } else if (req.url === '/api/think' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', async () => {
+      try {
+        const parsed = JSON.parse(body);
+        const fakeReq = { method: 'POST', body: parsed };
+        const fakeRes = {
+          statusCode: 200,
+          headers: {},
+          setHeader(k, v) { this.headers[k] = v; },
+          status(code) { this.statusCode = code; return this; },
+          json(data) {
+            res.writeHead(this.statusCode, {
+              'Content-Type': 'application/json',
+              ...this.headers
+            });
+            res.end(JSON.stringify(data));
+          },
+          end() { res.writeHead(this.statusCode); res.end(); }
+        };
+        await thinkHandler(fakeReq, fakeRes);
+      } catch (err) {
+        console.error('Think handler error:', err);
         res.writeHead(500, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'Internal server error' }));
       }

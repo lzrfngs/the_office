@@ -4,7 +4,7 @@
  * Limited to last 20 messages per agent to keep context manageable.
  */
 
-const STORAGE_KEY = 'the-grove-chat';
+const STORAGE_KEY = 'the-office-chat';
 const MAX_MESSAGES = 20;
 
 export class ChatHistory {
