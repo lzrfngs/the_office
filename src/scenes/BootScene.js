@@ -21,16 +21,16 @@ export class BootScene extends Phaser.Scene {
   preload() {
     // Load character spritesheets — full LimeZu composite sheets
     for (const agent of AGENTS) {
-      this.load.spritesheet(agent.spriteKey, `assets/agents/${agent.spriteKey}.png`, {
+      this.load.spritesheet(agent.spriteKey, `agents/${agent.spriteKey}.png`, {
         frameWidth: FRAME_W,
         frameHeight: FRAME_H,
       });
     }
 
     // Office tilemap (Tiled JSON) and tileset images
-    this.load.tilemapTiledJSON('office', 'assets/office.json');
-    this.load.image('Room_Builder_Office_48x48', 'assets/tiles/Room_Builder_Office_48x48.png');
-    this.load.image('Modern_Office_Shadowless_48x48', 'assets/tiles/Modern_Office_Shadowless_48x48.png');
+    this.load.tilemapTiledJSON('office', 'office.json');
+    this.load.image('Room_Builder_Office_48x48', 'tiles/Room_Builder_Office_48x48.png');
+    this.load.image('Modern_Office_Shadowless_48x48', 'tiles/Modern_Office_Shadowless_48x48.png');
   }
 
   create() {
